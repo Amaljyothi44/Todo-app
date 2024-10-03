@@ -11,15 +11,16 @@ const InputTask = () => {
     const [newTask, setnewTask] = useState<string>('');
     const [tasks, setTasks] = useState<Task[]>([]);
 
-    useEffect(()=> {
-        const TaskData = async () => {
-            const res = await fetch('/api/tasks', {next : {revalidate:10}});
+    // useEffect(()=> {
+    //     const TaskData = async () => {
+    //         const res = await fetch('/api/tasks', {next : {revalidate:10}});
 
-            const tasks : Task[] = await res.json();
-            setTasks(tasks);
-        }
-        TaskData();
-    },[])
+    //         const tasks : Task[] = await res.json();
+    //         setTasks(tasks);
+    //     }
+    //     TaskData();
+    // },[])
+    
     // Used Local Storge - 
     //Load data from Local, once on mount
     useEffect(()=> {
@@ -58,10 +59,10 @@ const InputTask = () => {
             headers:{
                 'Content-Type':'application/json',
             },
-            body: JSON.stringify(tasks),
+            
         });
-        const data = await res.json();
-
+        const data = await res.json()
+        console.log(data)
     } catch (error) {
         console.error ('Failed to Save task to server', error)
     }
@@ -78,7 +79,7 @@ return (
             placeholder="Add Task"/>
     <button type="submit" className="btn btn-primary bg-violet-600"> Add Task</button>
 </form>
- <TaskList tasks={tasks} />
+  <TaskList tasks={tasks} setTasks={setTasks} />
 </div>
 );  
 }

@@ -18,6 +18,7 @@ const getDb = async () => {
 
 export async function GET() {
   try {
+    console.log("haiii")
     const db = await getDb();
     const tasks = await db.all('SELECT * FROM tasks');
     return NextResponse.json(tasks);
@@ -33,14 +34,10 @@ export async function POST(req: Request) {
     const db = await getDb();
     const body = await req.json();
     const { id, text } = body;
-
     if (!id || !text) {
       return NextResponse.json({ message: "Task data is incomplete" }, { status: 400 });
     }
-
-    
     await db.run('INSERT INTO tasks (id, text) VALUES (?, ?)', [id, text]);
-
     return NextResponse.json({ message: "Task saved", task: { id, text } }, { status: 200 });
   } catch (error) {
     console.error('Failed to save task:', error);
@@ -48,13 +45,24 @@ export async function POST(req: Request) {
   }
 }
 
-export async function DELETE(req: Request) {
+export async function DELETE(req: Request, { params }: { params: { id: string } }) {
   try {
     const db = await getDb();
-    await db.run('DELETE FROM tasks');
-    return NextResponse.json({ message: "All tasks deleted" }, { status: 200 });
+    const { id } = params;
+    if (!id) {
+      return NextResponse.json({ message: "Task ID is required" }, { status: 400 });
+    }
+
+    const taskToDelete = await db.get('SELECT * FROM tasks WHERE id = ?', [id]);
+    if (!taskToDelete) {
+      return NextResponse.json({ message: "Task not found" }, { status: 404 });
+    }
+
+    await db.run('DELETE FROM tasks WHERE id = ?', [id]);
+    return NextResponse.json({ message: "Task deleted" }, { status: 200 });
   } catch (error) {
-    console.error('Failed to delete tasks:', error);
-    return NextResponse.json({ message: 'Failed to delete tasks' }, { status: 500 });
+    return NextResponse.json({ message: 'Failed to delete task' }, { status: 500 });
   }
 }
+
+
