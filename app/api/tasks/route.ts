@@ -45,24 +45,24 @@ export async function POST(req: Request) {
   }
 }
 
-export async function DELETE(req: Request, { params }: { params: { id: string } }) {
-  try {
-    const db = await getDb();
-    const { id } = params;
-    if (!id) {
-      return NextResponse.json({ message: "Task ID is required" }, { status: 400 });
-    }
+// export async function DELETE(req: Request, { params }: { params: { id: string } }) {
+//   try {
+//     const db = await getDb();
+//     const { id } = params;
+//     if (!id) {
+//       return NextResponse.json({ message: "Task ID is required" }, { status: 400 });
+//     }
 
-    const taskToDelete = await db.get('SELECT * FROM tasks WHERE id = ?', [id]);
-    if (!taskToDelete) {
-      return NextResponse.json({ message: "Task not found" }, { status: 404 });
-    }
+//     const taskToDelete = await db.get('SELECT * FROM tasks WHERE id = ?', [id]);
+//     if (!taskToDelete) {
+//       return NextResponse.json({ message: "Task not found" }, { status: 404 });
+//     }
 
-    await db.run('DELETE FROM tasks WHERE id = ?', [id]);
-    return NextResponse.json({ message: "Task deleted" }, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ message: 'Failed to delete task' }, { status: 500 });
-  }
-}
+//     await db.run('DELETE FROM tasks WHERE id = ?', [id]);
+//     return NextResponse.json({ message: "Task deleted" }, { status: 200 });
+//   } catch (error) {
+//     return NextResponse.json({ message: 'Failed to delete task' }, { status: 500 });
+//   }
+// }
 
 

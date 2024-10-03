@@ -20,7 +20,7 @@ const InputTask = () => {
     //     }
     //     TaskData();
     // },[])
-    
+
     // Used Local Storge - 
     //Load data from Local, once on mount
     useEffect(()=> {
@@ -47,26 +47,26 @@ const InputTask = () => {
         const Task = { id: Date.now().toString(), text: taskText };
         setTasks((prevTasks) => {
             const updatedTasks = [...prevTasks, Task]; 
-        SaveTask(Task);
+        // SaveTask(Task);
         return updatedTasks;
     });
     };
     // add to server
-   const SaveTask = async (tasks:Task) => {
-    try {
-        const res = await fetch('/api/tasks', {
-            method:'POST',
-            headers:{
-                'Content-Type':'application/json',
-            },
+//    const SaveTask = async (tasks:Task) => {
+//     try {
+//         const res = await fetch('/api/tasks', {
+//             method:'POST',
+//             headers:{
+//                 'Content-Type':'application/json',
+//             },
             
-        });
-        const data = await res.json()
-        console.log(data)
-    } catch (error) {
-        console.error ('Failed to Save task to server', error)
-    }
-   };
+//         });
+//         const data = await res.json()
+//         console.log(data)
+//     } catch (error) {
+//         console.error ('Failed to Save task to server', error)
+//     }
+//    };
 
 
 return (
@@ -79,7 +79,7 @@ return (
             placeholder="Add Task"/>
     <button type="submit" className="btn btn-primary bg-violet-600"> Add Task</button>
 </form>
-  <TaskList tasks={tasks} setTasks={setTasks} />
+  <TaskList tasks={tasks} setTasks={setTasks}  setnewTask = {setnewTask}/>
 </div>
 );  
 }

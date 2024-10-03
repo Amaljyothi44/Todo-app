@@ -1,24 +1,36 @@
 import { Task } from "../../pages/InputTask";
 
-const TaskList = ({ tasks, setTasks }: { tasks: Task[]; setTasks: React.Dispatch<React.SetStateAction<Task[]>> }) => {
+const TaskList = ({ tasks, setTasks, setnewTask }: { tasks: Task[]; setTasks: React.Dispatch<React.SetStateAction<Task[]>>; setnewTask: React.Dispatch<React.SetStateAction<string>> }) => {
   
   const deleteTask = async (taskId: string) => {
-    try {
-      const res = await fetch(`/api/tasks/${taskId}`, {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json'
-      }
-      });
-
-      if (!res.ok) {
-        throw new Error('Failed to delete task');
-      }
-      setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
-    } catch (error) {
-      console.error('Error deleting task:', error);
+    setTasks((prevTasks) => prevTasks.filter((item) => item.id !==taskId));
+    localStorage.setItem('tasks', JSON.stringify(tasks));
+   }
+   
+   const EditTask = (taskId: string) => {
+    const task = tasks.find((item) => item.id === taskId);
+    if (task) {
+      setnewTask(task.text);
+      deleteTask(taskId)
     }
   };
+   
+    // try {
+    //   const res = await fetch(`/api/tasks/${taskId}`, {
+    //     method: 'DELETE',
+    //     headers: {
+    //       'Content-Type': 'application/json'
+    //   }
+    //   });
+
+    //   if (!res.ok) {
+    //     throw new Error('Failed to delete task');
+    //   }
+    //   setTasks((prevTasks) => prevTasks.filter((task) => task.id !== taskId));
+    // } catch (error) {
+    //   console.error('Error deleting task:', error);
+    // }
+    // };
 
   return (
     <div>
@@ -35,7 +47,7 @@ const TaskList = ({ tasks, setTasks }: { tasks: Task[]; setTasks: React.Dispatch
               <div className="text-black font-bold">{task.text}</div>
               <div>
               <div className="btn btn-outline btn-error" onClick={()=>deleteTask(task.id)}>Delete</div>
-              <div className="btn btn-outline btn-info ml-2"> Edit </div>
+              <div className="btn btn-outline btn-info ml-2" onClick={()=>EditTask(task.id)}> Edit </div>
               </div>
             </div>
           ))
