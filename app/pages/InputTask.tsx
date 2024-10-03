@@ -14,8 +14,8 @@ const InputTask = () => {
     // Load data from Local
     useEffect(()=> {
         const storeTasks = localStorage.getItem('tasks');
-        if (storedTasks) {
-            setTasks(JSON.parse(storedTasks))
+        if (storeTasks) {
+            setTasks(JSON.parse(storeTasks))
         }
     })
     // sync task whenever changes
@@ -31,13 +31,26 @@ const InputTask = () => {
         addTask(newTask.trim());
         setnewTask('');
     }
+    //add Task function
     const addTask = (taskText: string) => {
         const Task = { id: Date.now().toString(), text: taskText };
         setTasks((prevTasks) => [...prevTasks, Task]); 
-         
+        SaveTask([...tasks,Task])
     };
-
-   
+    // add to server
+   const SaveTask = async (tasks:Task[]) => {
+    try {
+        await fetch('api/tasks', {
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json',
+            },
+            body: JSON.stringify(tasks),
+        });
+    } catch (error) {
+        console.error ('Failed to Save task to server', error)
+    }
+   };
 
 
 return (
