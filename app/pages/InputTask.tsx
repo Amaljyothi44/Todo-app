@@ -11,19 +11,29 @@ const InputTask = () => {
     const [newTask, setnewTask] = useState<string>('');
     const [tasks, setTasks] = useState<Task[]>([]);
 
-    // Load data from Local
+    useEffect(()=> {
+        const TaskData = async () => {
+            const res = await fetch('/api/tasks', {next : {revalidate:10}});
+
+            const tasks : Task[] = await res.json();
+            setTasks(tasks);
+        }
+        TaskData();
+    },[])
+    // Used Local Storge - 
+    //Load data from Local, once on mount
     useEffect(()=> {
         const storeTasks = localStorage.getItem('tasks');
         if (storeTasks) {
-            setTasks(JSON.parse(storeTasks))
+            setTasks(JSON.parse(storeTasks));
         }
-    })
-    // sync task whenever changes
+    },[])
+    //sync task whenever changes
      useEffect(() => {
         if(tasks.length){
             localStorage.setItem('tasks', JSON.stringify(tasks));
         }
-     })
+     }, [tasks])
 
     const handleSubmit = (e : React.FormEvent) => {
         e.preventDefault();
@@ -34,19 +44,24 @@ const InputTask = () => {
     //add Task function
     const addTask = (taskText: string) => {
         const Task = { id: Date.now().toString(), text: taskText };
-        setTasks((prevTasks) => [...prevTasks, Task]); 
-        SaveTask([...tasks,Task])
+        setTasks((prevTasks) => {
+            const updatedTasks = [...prevTasks, Task]; 
+        SaveTask(Task);
+        return updatedTasks;
+    });
     };
     // add to server
-   const SaveTask = async (tasks:Task[]) => {
+   const SaveTask = async (tasks:Task) => {
     try {
-        await fetch('api/tasks', {
+        const res = await fetch('/api/tasks', {
             method:'POST',
             headers:{
                 'Content-Type':'application/json',
             },
             body: JSON.stringify(tasks),
         });
+        const data = await res.json();
+
     } catch (error) {
         console.error ('Failed to Save task to server', error)
     }
