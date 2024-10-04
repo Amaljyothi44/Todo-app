@@ -1,3 +1,4 @@
+import { fetcher } from "../api/router_api.js";
 import InputTask from "./InputTask";
 
 const Todo : React.FC=()=> {
@@ -10,3 +11,23 @@ const Todo : React.FC=()=> {
 }
 
 export default Todo;
+
+export async function getStaticProps() {
+
+  try {
+    const todoResponse = await fetcher(`${process.env.NEXT_PUBLIC_STRAPI_URL}/todos`);
+    console.log("Todo Response:", todoResponse);
+    return {
+      props: {
+        todo: todoResponse,
+      },
+    };
+  } catch (error: unknown) {
+    if (error instanceof Error) {
+        console.error("Error fetching todo:", error.message);
+    } else {
+        console.error("Unknown error:", error);
+    }
+}
+}
+

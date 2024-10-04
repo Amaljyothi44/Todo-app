@@ -10,16 +10,18 @@ export interface Task {
 const InputTask = () => {
     const [newTask, setnewTask] = useState<string>('');
     const [tasks, setTasks] = useState<Task[]>([]);
+    
+    
 
-    // useEffect(()=> {
-    //     const TaskData = async () => {
-    //         const res = await fetch('/api/tasks', {next : {revalidate:10}});
+    useEffect(()=> {
+        const TaskData = async () => {
+            const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/todos`, {next : {revalidate:10}});
 
-    //         const tasks : Task[] = await res.json();
-    //         setTasks(tasks);
-    //     }
-    //     TaskData();
-    // },[])
+            const tasks : Task[] = await res.json();
+            setTasks(tasks);
+        }
+        TaskData();
+    },[])
 
     // Used Local Storge - 
     //Load data from Local, once on mount
