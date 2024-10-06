@@ -3,72 +3,61 @@ import { useEffect, useState } from "react";
 import TaskList from "../components/tasklist/tasklist";
 
 export interface Task {
-    id : string;
+    id? : string;
     text : string;
+    createdAt?: string;
 }
 
 const InputTask = () => {
     const [newTask, setnewTask] = useState<string>('');
     const [tasks, setTasks] = useState<Task[]>([]);
     
-    
-
-    useEffect(()=> {
+    useEffect(() => {
         const TaskData = async () => {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/todos`, {next : {revalidate:10}});
-
-            const tasks : Task[] = await res.json();
-            setTasks(tasks);
-        }
+            try {
+                const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/todos`, { next: { revalidate: 10 } });
+                
+                if (!res.ok) {
+                    throw new Error('response was not ok');
+                }
+                const response = await res.json();
+                const tasks = await response.data;
+                setTasks(tasks);
+            } catch (error) {
+                console.error('Failed to fetch tasks:', error);
+            }
+        };
+        
         TaskData();
-    },[])
-
-    // Used Local Storge - 
-    //Load data from Local, once on mount
-    useEffect(()=> {
-        const storeTasks = localStorage.getItem('tasks');
-        if (storeTasks) {
-            setTasks(JSON.parse(storeTasks));
-        }
-    },[])
-    //sync task whenever changes
-     useEffect(() => {
-        if(tasks.length){
-            localStorage.setItem('tasks', JSON.stringify(tasks));
-        }
-     }, [tasks])
-
+    }, []);
+    
     const handleSubmit = (e : React.FormEvent) => {
         e.preventDefault();
         if (!newTask.trim()) return;
-        addTask(newTask.trim());
+        const taskText = newTask.trim();
+        const newTaskObj: Task = { text: taskText };
+        setTasks((prevTasks) => [...prevTasks, newTaskObj]);
         setnewTask('');
+        SaveTask(newTaskObj);
     }
-    //add Task function
-    const addTask = (taskText: string) => {
-        const Task = { id: Date.now().toString(), text: taskText };
-        setTasks((prevTasks) => {
-            const updatedTasks = [...prevTasks, Task]; 
-        // SaveTask(Task);
-        return updatedTasks;
-    });
-    };
     // add to server
-//    const SaveTask = async (tasks:Task) => {
-//     try {
-//         const res = await fetch('/api/tasks', {
-//             method:'POST',
-//             headers:{
-//                 'Content-Type':'application/json',
-//             },
-            
-//         });
-//         const data = await res.json()
-//         console.log(data)
-//     } catch (error) {
-//         console.error ('Failed to Save task to server', error)
-//     }
-//    };
+   const SaveTask = async (tasks:Task) => {
+    try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_STRAPI_URL}/todos`, {
+            method:'POST',
+            headers:{
+                'Content-Type':'application/json',
+            },
+            body: JSON.stringify({ data: { text: tasks.text } })
+        });
+        const data = await res.json()
+        console.log('Saved task:', data);
+        setTasks((prevTasks) => prevTasks.map(t => t === tasks ? { ...t, id: data.id } : t));
+
+    } catch (error) {
+        console.error ('Failed to Save task to server', error)
+    }
+   };
 
 
 return (
